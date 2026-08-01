@@ -20,13 +20,26 @@ def save(expenses: list[dict]) -> None:
         json.dump(expenses, f, indent=2, default=str)
 
 
-def get_all() -> list[dict]:
-    return load()
-
-
-def get_by_category(category: str) -> list[dict]:
+def get_expenses(
+    category: str | None = None,
+    q: str | None = None,
+) -> list[dict]:
+    """Return expenses, optionally filtered by category and/or title."""
     expenses = load()
-    return [e for e in expenses if e["category"].lower() == category.lower()]
+
+    if category:
+        expenses = [
+            e for e in expenses
+            if e["category"].lower() == category.lower()
+        ]
+
+    if q:
+        expenses = [
+            e for e in expenses
+            if q.lower() in e["title"].lower()
+        ]
+
+    return expenses
 
 
 def add_expense(expense_data: dict) -> dict:

@@ -11,10 +11,11 @@ def create_expense(expense: ExpenseCreate):
 
 
 @app.get("/expenses", response_model=list[Expense])
-def list_expenses(category: str | None = None):
-    if category:
-        return storage.get_by_category(category)
-    return storage.get_all()
+def list_expenses(
+    category: str | None = None,
+    q: str | None = None,
+):
+    return storage.get_expenses(category=category, q=q)
 
 
 @app.get("/expenses/total")
