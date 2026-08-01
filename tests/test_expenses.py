@@ -223,6 +223,117 @@ def test_filter_by_category_no_matches(isolated_storage):
     assert response.json() == []
 
 
+def test_search_by_title(isolated_storage):
+    client.post(
+        "/expenses",
+        json={
+            "title": "Coffee",
+            "amount": 4.5,
+            "category": "food",
+            "date": "2026-07-31",
+        },
+    )
+    client.post(
+        "/expenses",
+        json={
+            "title": "Bus",
+            "amount": 2.0,
+            "category": "transport",
+            "date": "2026-07-31",
+        },
+    )
+
+    response = client.get("/expenses?q=coffee")
+    body = response.json()
+
+    assert response.status_code == 200
+    assert len(body) == 1
+    assert body[0]["title"] == "Coffee"
+
+
+def test_search_by_title_case_insensitive(isolated_storage):
+    client.post(
+        "/expenses",
+        json={
+            "title": "Coffee",
+            "amount": 4.5,
+            "category": "food",
+            "date": "2026-07-31",
+        },
+    )
+
+    response = client.get("/expenses?q=COFFEE")
+    body = response.json()
+
+    assert response.status_code == 200
+    assert len(body) == 1
+    assert body[0]["title"] == "Coffee"
+
+
+def test_search_by_title_no_matches(isolated_storage):
+    client.post(
+        "/expenses",
+        json={
+            "title": "Coffee",
+            "amount": 4.5,
+            "category": "food",
+            "date": "2026-07-31",
+        },
+    )
+
+    response = client.get("/expenses?q=xyz")
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_search_by_title_partial_match(isolated_storage):
+    client.post(
+        "/expenses",
+        json={
+            "title": "Coffee",
+            "amount": 4.5,
+            "category": "food",
+            "date": "2026-07-31",
+        },
+    )
+
+    response = client.get("/expenses?q=cof")
+    body = response.json()
+
+    assert response.status_code == 200
+    assert len(body) == 1
+    assert body[0]["title"] == "Coffee"
+
+
+def test_search_and_category_combined(isolated_storage):
+    client.post(
+        "/expenses",
+        json={
+            "title": "Coffee",
+            "amount": 4.5,
+            "category": "food",
+            "date": "2026-07-31",
+        },
+    )
+    client.post(
+        "/expenses",
+        json={
+            "title": "Coffee Mug",
+            "amount": 12.0,
+            "category": "shopping",
+            "date": "2026-07-31",
+        },
+    )
+
+    response = client.get("/expenses?category=food&q=coffee")
+    body = response.json()
+
+    assert response.status_code == 200
+    assert len(body) == 1
+    assert body[0]["title"] == "Coffee"
+
+
 def test_totals_empty(isolated_storage):
     response = client.get("/expenses/total")
     body = response.json()
