@@ -70,3 +70,14 @@
 ### Suggestions I Didn't Use
 
 - Considered passing the `ExpenseCreate` object directly to `storage.py`, but decided against it after discussing the tradeoffs. Keeping the conversion in the route made the separation between the API layer and storage layer a little clearer.
+
+## Tests (tests/test_expenses.py)
+
+Used AI to help plan the test scenarios first before writing the file.
+
+- Split tests into two groups:
+  - storage-level tests (testing storage.py directly)
+  - API-level tests (testing the FastAPI routes using TestClient)
+- Learned how pytest fixtures work to isolate tests from the real expenses.json file by temporarily redirecting the storage path to a temporary file.
+- Initially had a test checking ID reuse after deleting all expenses. During review I decided to remove it because the assignment doesn't specify that behaviour, and I wanted the tests to stay focused on the required functionality instead of implementation details.
+- Ran the complete suite after implementation and all 19 tests passed.
